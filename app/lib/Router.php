@@ -6,6 +6,7 @@ class Router
     private static $pathNotFound = null;
     private static $methodNotAllowed = null;
 
+    // Resister route
     public static function add($expression, $function, $method = 'GET')
     {
         self::$routes[] = [
@@ -15,22 +16,24 @@ class Router
         ];
     }
 
+    // Set pathNotFound function
     public static function pathNotFound($function)
     {
         self::$pathNotFound = $function;
     }
 
+    // Set methodNotAllowed function
     public static function methodNotAllowed($function)
     {
         self::$methodNotAllowed = $function;
     }
 
+    // Dispatch
     public static function run($basepath = '/')
     {
-        //echo '<pre>'; print_r(self::$routes);die();
-        // Parse current url
         $parsed_url = parse_url($_SERVER['REQUEST_URI']);//Parse Uri
 
+        // If path is not defined fallback on basepath
         if (isset($parsed_url['path'])) {
             $path = $parsed_url['path'];
         } else {
@@ -40,14 +43,13 @@ class Router
         // Get current request method
         $method = $_SERVER['REQUEST_METHOD'];
 
-        // Check Flags definition
+        // Check flags definition
         $path_match_found = false;
         $route_match_found = false;
 
         foreach (self::$routes as $route) {
             // If the method matches check the path
-
-            // Add basepath to matching string
+            // add basepath to matching string
             if ($basepath != '' && $basepath != '/') {
                 $route['expression'] = '(' . $basepath . ')' . $route['expression'];
             }
@@ -57,20 +59,18 @@ class Router
             // Add 'find string end' automatically
             $route['expression'] = $route['expression'] . '$';
 
-            // echo $route['expression'].'<br/>';
-
             // Check path match
             if (preg_match('#' . $route['expression'] . '#', $path, $matches)) {
-
                 $path_match_found = true;
 
                 // Check method match
                 if (strtolower($method) == strtolower($route['method'])) {
-
-                    array_shift($matches);// Always remove first element. This contains the whole string
+                    // Always remove first element 'cause it contains the whole string
+                    array_shift($matches);
 
                     if ($basepath != '' && $basepath != '/') {
-                        array_shift($matches);// Remove basepath
+                        // Remove basepath
+                        array_shift($matches);
                     }
 
                     call_user_func_array($route['function'], $matches);

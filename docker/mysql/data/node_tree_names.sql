@@ -20,7 +20,7 @@ INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) V
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('1', 'italian', 'Marketing');
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('2', 'english', 'Helpdesk');
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('2', 'italian', 'Supporto Tecnico');
-INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('3', 'english', 'managers');
+INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('3', 'english', 'Managers');
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('3', 'italian', 'Managers');
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('4', 'english', 'Customer Account');
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('4', 'italian', 'Assistenza Cliente');
