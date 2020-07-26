@@ -35,7 +35,7 @@ class NodeRepository
     }
 
     // Get nodes by parent id, language
-    public function get($idNode, $language, $limit = 0, $offset = 100)
+    public function get($idNode, $language, $limit = 1000, $offset = 0, $keyword = null)
     {
         $query = "SELECT 
                 node_names.nodeName, 
@@ -44,15 +44,15 @@ class NodeRepository
                 children.idNode,
                 children.iLeft, 
                 children.iRight 
-                
                 FROM node_tree parent JOIN node_tree children ON children.iLeft BETWEEN parent.iLeft AND parent.iRight 
                 JOIN node_tree_names node_names on node_names.idNode = children.idNode
-                
-                WHERE parent.idNode = $idNode and node_names.language = '$language' group by children.iLeft order by children.iLeft LIMIT $limit, $offset;";
+                WHERE parent.idNode = $idNode and node_names.language = '$language' " .
+            ($keyword ? " and node_names.nodeName LIKE '%$keyword%'" : '') .
+            " group by children.iLeft order by children.iLeft LIMIT $offset, $limit;";
+
         $result = $this->dataSource->query($query);
 
-        $ret = $this->sanitizeUtf8(mysqli_fetch_all($result, MYSQLI_ASSOC));
-        return $ret;
+        return $this->sanitizeUtf8(mysqli_fetch_all($result, MYSQLI_ASSOC));
     }
 
     // Sanitize non utf8 chars to prevent breaking json_encode function
