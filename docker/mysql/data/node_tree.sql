@@ -18,4 +18,4 @@ INSERT INTO `node-finder`.`node_tree` (`idNode`, `level`, `iLeft`, `iRight`) VAL
 INSERT INTO `node-finder`.`node_tree` (`idNode`, `level`, `iLeft`, `iRight`) VALUES ('9', '3', '17', '18');
 INSERT INTO `node-finder`.`node_tree` (`idNode`, `level`, `iLeft`, `iRight`) VALUES ('10', '2', '20', '21');
 INSERT INTO `node-finder`.`node_tree` (`idNode`, `level`, `iLeft`, `iRight`) VALUES ('11', '3', '13', '14');
-INSERT INTO `node-finder`.`node_tree` (`idNode`, `level`, `iLeft`, `iRight`) VALUES ('12', '2', '22', '23');
+INSERT INTO `node-finder`.`node_tree` (`idNode`, `level`, `iLeft`, `iRight`) VALUES ('12', '2', '22', '25');
