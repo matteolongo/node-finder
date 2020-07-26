@@ -7,50 +7,53 @@
 
 class TreeBuilder
 {
+    private $items;
 
-    private $mysql_result;
-    private $peeked = false;
-    private $last_peek;
-
-    public function __construct($mysql_result) {
-        $this->mysql_result = $mysql_result;
+    public function __construct($items)
+    {
+        $this->items = $items;
     }
 
-    public function getTree() {
-        $root = $this->consume();
-        $root["children"] = $this->getSubTree($root["rgt"]);
-        return $root;
-    }
+    public function getTree()
+    {
+        // Initialize depth
+        $currDepth = -1;
+        // Initilialize empty result
+        $result = [];
+        // Create path structure for depths
+        $path = [];
+        // Create 'root' node
+        $oldItem = ['children'=> &$result];
 
-    private function getSubTree($stop_at) {
-        $nodes = array();
-        $node = $this->peek();
-        while ($node["rgt"] < $stop_at) {
-            $node = $this->consume();
-            $node["children"] = $this->getSubTree($node["rgt"]);
-            $nodes[] = $node;
-            $node = $this->peek();
-            if (false === $node) {
-                break;
+        // Loop nodes to build the tree array
+        foreach($this->items as $item){
+            if($item['level'] > $currDepth){
+                // Remove old reference (old depth of other branch)
+                if(isset($path[$item['level']])) unset($path[$item['level']]);
+
+                // Make sure we have an array entry
+                if(!isset($oldItem['children'])) $oldItem['children'] = array();
+
+                // Get target
+                $path[$item['level']] = &$oldItem['children'];
             }
-        }
-        return $nodes;
-    }
 
-    private function peek() {
-        if (false === $this->peeked) {
-            $this->peeked = true;
-            $this->last_peek = mysql_fetch_assoc($this->mysql_result);
-        }
-        return $this->last_peek;
-    }
+            if($item['level'] != $currDepth) unset($oldItem);
+            // Set target
+            $currDepth = $item['level'];
 
-    private function consume() {
-        if (false === $this->peeked) {
-            return mysql_fetch_assoc($this->mysql_result);
-        } else {
-            $this->peeked = false;
-            return $this->last_peek;
+            // Add item
+            $path[$currDepth][] = &$item;
+
+            // Copy & remove reference
+            $oldItem = &$item;
+            unset($item);
         }
+
+        // Clean up references
+        unset($path);
+        unset($oldItem);
+
+        return $result;
     }
 }
