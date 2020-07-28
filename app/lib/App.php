@@ -9,7 +9,7 @@ class App
     public function __construct()
     {
         $this->setupRouter();
-        $this->datasource = new Datasources\MysqlDatasource('mysql', 'root', 'password', 'node-finder');
+        $this->datasource = new Datasources\MysqlDatasource('mysql', 'admin', 'password', 'node-finder');
         $this->nodeRepository = new \Repositories\NodeRepository($this->datasource);
     }
 

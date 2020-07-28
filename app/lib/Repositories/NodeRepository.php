@@ -6,6 +6,8 @@
 
 namespace Repositories;
 
+use Exceptions\NodeIdException;
+
 class NodeRepository
 {
     public $dataSource;
@@ -52,6 +54,11 @@ class NodeRepository
 
         $result = $this->dataSource->query($query);
 
+        // If 0 results doesn't depend on not found keyword
+        // or pagination, the node id doesn't exists
+        if($keyword === null && $limit === 1000 && $offset === 0 && $result->num_rows === 0){
+            throw new NodeIdException("Node with id $idNode does not exists");
+        }
         return $this->sanitizeUtf8(mysqli_fetch_all($result, MYSQLI_ASSOC));
     }
 
