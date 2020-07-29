@@ -37,7 +37,7 @@ class NodeRepository
     }
 
     // Get nodes by parent id, language
-    public function get($idNode, $language, $limit = 1000, $offset = 0, $keyword = null)
+    public function get($idNode, $language, $limit = 100, $offset = 0, $keyword = null)
     {
         $query = "SELECT 
                 node_names.nodeName, 
@@ -52,12 +52,14 @@ class NodeRepository
             ($keyword ? " and node_names.nodeName LIKE '%$keyword%'" : '') .
             " group by children.iLeft order by children.iLeft LIMIT $offset, $limit;";
 
+
+        //$stmt = $this->dataSource->getConnection()->prepare("INSERT INTO MyGuests (firstname, lastname, email) VALUES (?, ?, ?)");
         $result = $this->dataSource->query($query);
 
         // If 0 results doesn't depend on not found keyword
         // or pagination, the node id doesn't exists
-        if($keyword === null && $limit === 1000 && $offset === 0 && $result->num_rows === 0){
-            throw new NodeIdException("Node with id $idNode does not exists");
+        if($keyword === null && $limit === 100 && $offset === 0 && $result->num_rows === 0){
+            throw new NodeIdException("Invalid node id: $idNode");
         }
         return $this->sanitizeUtf8(mysqli_fetch_all($result, MYSQLI_ASSOC));
     }

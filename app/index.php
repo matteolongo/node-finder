@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Gracefully crafted by LongoDB
+ * 26/07/2020 02:49
+ */
+
 include('autoloader.php');
 
 
@@ -13,9 +18,9 @@ $app->addRoute('/', function () use ($app) {
 // Show full tree in selected language
 $app->addRoute('/full-tree/(italian|english)', function ($language) use ($app) {
     header('Content-Type: application/json');
-    $a = $app->nodeRepository->getAllTree($language);
-    $jsonData = json_encode($a);
-    echo($jsonData);
+    $tree = $app->nodeRepository->getAllTree($language);
+    echo json_encode($tree);
+    die();
 });
 
 // Accept only numbers as parameter. Other characters will result in a 404 error
@@ -25,16 +30,26 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
         $response = [
             'nodes' => [],
         ];
+
+        // more detailed error messages, could replace block: MANDATORY PARAMETERS
+        /*
         if (!$language) {
-            $errors[] = "Parameter language is mandatory \n";
+            $errors[] = "Parameter language is mandatory";
         }
         if (!$nodeId) {
-            $errors[] = "Parameter node_id is mandatory \n";
+            $errors[] = "Parameter node_id is mandatory";
         }
+        */
 
-        // Get optional parameters
+        /* MANDATORY PARAMETERS begin */
+        if(!$language || !$nodeId){
+            $errors[] = "Missing mandatory params";
+        }
+        /* MANDATORY PARAMETERS end */
 
-        // Check optional parameters are correct
+        // Get optional parameters and check they are correct
+        // more detailed error messages, could replace block: PAGINATION PARAMETERS
+        /*
         if (isset($_GET['page_num'])) {
             $pageNum = $_GET['page_num'];
             if (intval($pageNum) === false) {
@@ -43,6 +58,7 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
                 $errors[] = "page_num parameter should be a positive number \n";
             }
         } else {
+            // Set default if not provided
             $pageNum = 0;
         }
 
@@ -51,51 +67,76 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
             if (intval($pageSize) === false) {
                 $errors[] = "page_size parameter should be a number between 1 and 1000\n";
             } elseif ($pageSize < 1) {
-                $errors[] = "page_size parameter should be a number greather than 0 \n";
+                $errors[] = "page_size parameter should be a number greater than 0 \n";
             } elseif ($pageSize > 1000) {
                 $errors[] = "page_size parameter should be a number with max value of 1000 \n";
             }
         } else {
+            // Set default if not provided
             $pageSize = 1000;
         }
+        */
 
-        $keyword = $_GET['keyword'];
+        // PAGINATION PARAMETERRS begin
+        if (isset($_GET['page_num'])) {
+            $pageNum = $_GET['page_num'];
+            if (intval($pageNum) === false || $pageNum < 0) {
+                $errors[] = "Invalid page number requested";
+            }
+        } else {
+            // Set default if not provided
+            $pageNum = 0;
+        }
 
-        header('Content-Type: application/json');
-        if (count($errors)) {
+        if ($_GET['page_size']) {
+            $pageSize = $_GET['page_size'];
+            if (intval($pageSize) === false || 0 > $pageSize ||$pageSize > 1000) {
+                $errors[] = "Invalid page size requested";
+            }
+        } else {
+            // Set default if not provided
+            $pageSize = 100;
+        }
+        // PAGINATION PARAMETERRS end
+
+        $keyword = $_GET['search_keyword'];
+
+        // If any error stop execution and send them back to the user
+        // otherwise fire the query and get results
+        if (!count($errors)) {
+            $limit = $pageSize;
+            $offset = (($pageNum) * $pageSize);
+
+            // If all parameters are ok execute query an build tree
+            $nodes = $app->nodeRepository->get($nodeId, $language, $limit, $offset, $keyword);
+            $treeBuilder = new TreeBuilder($nodes);
+            $response['nodes'] = $treeBuilder->getTree();
+            $nextPageNumber = $pageNum + 1;
+
+            // TODO check if next page is availabe, otherwise don't set the field in response
+            $response['next_page'] = "/$language/$nodeId/?page_num=$nextPageNumber&page_size=$pageSize";
+            if ($pageNum > 0) {
+                $prevPageNumber = $pageNum - 1;
+                $response['prev_page'] = "/$language/$nodeId/?page_num=$prevPageNumber&page_size=$pageSize";
+            }
+        } else {
             $response['errors'] = $errors;
-            echo json_encode($response);
-            die();
         }
 
-        $limit = $pageSize;
-        $offset = (($pageNum) * $pageSize);
+    } catch (Exception $exception) {
 
-        // If all parameters are ok execute query an build tree
-        //var_dump($limit, $offset);
-        $nodes = $app->nodeRepository->get($nodeId, $language, $limit, $offset, $keyword);
-        $treeBuilder = new TreeBuilder($nodes);
-        $response['nodes'] = $treeBuilder->getTree();
-        $nextPageNumber = $pageNum + 1;
-
-        // TODO check if next page is availabe, otherwise don't set the field in response
-        $response['next_page'] = "/$language/$nodeId/?page_num=$nextPageNumber&page_size=$pageSize";
-        if ($pageNum > 0) {
-            $prevPageNumber = $pageNum - 1;
-            $response['prev_page'] = "/$language/$nodeId/?page_num=$prevPageNumber&page_size=$pageSize";
+        // If node id does not exists set response status to 404
+        if (get_class($exception) == 'Exceptions\NodeIdException') {
+            header("HTTP/1.0 404 Not Found");
         }
+
+        // add exception message to errors
+        $response['errors'][] = $exception->getMessage();
+
+    } finally {
+        header('Content-Type: application/json');
         echo json_encode($response);
         die();
-    } catch (Exception $exception) {
-        if (get_class($exception) == 'Exceptions\NodeIdException') {
-            header('Content-Type: text/plain');
-            header("HTTP/1.0 404 Not Found");
-            echo $exception->getMessage();
-            die();
-        } else {
-            echo $exception->getMessage();
-            die();
-        }
     }
 });
 
