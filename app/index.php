@@ -7,7 +7,6 @@
 
 include('autoloader.php');
 
-
 $app = new App();
 
 // Home route
@@ -33,6 +32,18 @@ $app->addRoute('/', function () use ($app) {
             </li>
             <li>
                 <a href="/english/7">Get sub node 7 ENGLISH</a>
+            </li>
+            <li>
+                <a href="/italian/5?page_num=2&page_size=2">Example with pagination ITALIAN</a>
+            </li>
+            <li>
+                <a href="/english/5?page_num=2&page_size=2">Example with pagination ENGLISH</a>
+            </li>
+            <li>
+                <a href="/italian/5?page_num=-1&page_size=2">Error page_num=-1 ITALIAN</a>
+            </li>
+            <li>
+                <a href="/english/5?page_num=a&page_size=2">Error page_num=a ENGLISH</a>
             </li>
         </ul>
     </p>
@@ -76,44 +87,9 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
         }
         MANDATORY PARAMETERS DETAILED ERRORS end **/
 
-
-
-        // Get optional parameters and check they are correct
-        // the uncommented block is as by requirements,
-        // for more detailed error messages replace PAGINATION PARAMETERRS block with PAGINATION PARAMETERRS DETAILED ERRORS block
-        /** PAGINATION PARAMETERRS DETAILED ERRORS begin
-         *
-        if (isset($_GET['page_num'])) {
-            $pageNum = $_GET['page_num'];
-            if (intval($pageNum) === false) {
-                $errors[] = "page_num parameter should be a number \n";
-            } elseif ($pageNum < 0) {
-                $errors[] = "page_num parameter should be a positive number \n";
-            }
-        } else {
-            // Set default if not provided
-            $pageNum = 0;
-        }
-
-        if ($_GET['page_size']) {
-            $pageSize = $_GET['page_size'];
-            if (intval($pageSize) === false) {
-                $errors[] = "page_size parameter should be a number between 1 and 1000\n";
-            } elseif ($pageSize < 1) {
-                $errors[] = "page_size parameter should be a number greater than 0 \n";
-            } elseif ($pageSize > 1000) {
-                $errors[] = "page_size parameter should be a number with max value of 1000 \n";
-            }
-        } else {
-            // Set default if not provided
-            $pageSize = 1000;
-        }
-        */
-
         // PAGINATION PARAMETERRS begin
         if (isset($_GET['page_num'])) {
             $pageNum = $_GET['page_num'];
-            //if (intval($pageNum) === false || $pageNum < 0) {
             if (!\Validators\PageNumValidator::validate($pageNum)) {
                 $errors[] = "Invalid page number requested";
             }
@@ -122,7 +98,7 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
             $pageNum = 0;
         }
 
-        if ($_GET['page_size']) {
+        if (isset($_GET['page_size'])) {
             $pageSize = $_GET['page_size'];
             //if (intval($pageSize) === false || 0 > $pageSize ||$pageSize > 1000) {
             if (!\Validators\PageSizeValidator::validate($pageSize)) {
@@ -148,8 +124,9 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
             $response['nodes'] = $treeBuilder->getTree();
             $nextPageNumber = $pageNum + 1;
 
-            // TODO check if next page is availabe, otherwise don't set the field in response
-            $response['next_page'] = "/$language/$nodeId?page_num=$nextPageNumber&page_size=$pageSize";
+            if(count($nodes) >= $pageSize){
+                $response['next_page'] = "/$language/$nodeId?page_num=$nextPageNumber&page_size=$pageSize";
+            }
             if ($pageNum > 0) {
                 $prevPageNumber = $pageNum - 1;
                 $response['prev_page'] = "/$language/$nodeId?page_num=$prevPageNumber&page_size=$pageSize";

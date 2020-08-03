@@ -12,6 +12,6 @@ class PageNumValidator implements IValidator
 {
     public static function validate($data)
     {
-        return intval($data) !== false || $data > 0;
+        return preg_match('#^[0-9][0-9]*$#', $data);
     }
 }

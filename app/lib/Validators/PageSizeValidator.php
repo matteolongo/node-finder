@@ -13,6 +13,6 @@ class PageSizeValidator implements IValidator
 
     public static function validate($data)
     {
-        return intval($data) !== false && 0 < $data && $data < 1000;
+        return (bool)preg_match('#^[1-9][0-9]?[0-9]?$|^1000$#', $data);
     }
 }

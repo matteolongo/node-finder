@@ -67,7 +67,7 @@ class NodeRepository
 
         // If 0 results doesn't depend on not found keyword
         // or pagination, the node id doesn't exists:
-        // it could've benn done with a query in the beginning,
+        // it could've been done with a query in the beginning,
         // but with this method we save a query (if the conditions are correct)
         if($keyword === null && $limit === 100 && $offset === 0 && $result->num_rows === 0){
             throw new NodeIdException("Invalid node id: $idNode");

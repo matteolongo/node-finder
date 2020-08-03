@@ -6,6 +6,11 @@ services:
       - test-node-finder
     volumes:
       - ./app/:/var/www/html/
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=password
+      - MYSQL_DB_NAME=node-finder
   apache:
     build: "./docker/apache/"
     depends_on:
