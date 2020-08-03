@@ -102,9 +102,6 @@ class Router
                     call_user_func_array(self::$pathNotFound, array($path));
                 }
             }
-
         }
-
     }
-
 }

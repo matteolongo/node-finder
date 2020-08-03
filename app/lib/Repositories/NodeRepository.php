@@ -18,7 +18,7 @@ class NodeRepository
     }
 
     // Get full node tree structure by language
-    public function getAllTree($language)
+    public function getAllNodes($language)
     {
         $query = "SELECT 
                 node_names.nodeName, 
@@ -48,16 +48,27 @@ class NodeRepository
                 children.iRight 
                 FROM node_tree parent JOIN node_tree children ON children.iLeft BETWEEN parent.iLeft AND parent.iRight 
                 JOIN node_tree_names node_names on node_names.idNode = children.idNode
-                WHERE parent.idNode = $idNode and node_names.language = '$language' " .
-            ($keyword ? " and node_names.nodeName LIKE '%$keyword%'" : '') .
-            " group by children.iLeft order by children.iLeft LIMIT $offset, $limit;";
+                WHERE parent.idNode = ? and node_names.language = ? " .
+            ($keyword ? " and node_names.nodeName LIKE ?" : '') .
+            " group by children.iLeft order by children.iLeft LIMIT ?, ?;";
 
 
-        //$stmt = $this->dataSource->getConnection()->prepare("INSERT INTO MyGuests (firstname, lastname, email) VALUES (?, ?, ?)");
-        $result = $this->dataSource->query($query);
+        // Prepare statement in order to prevent SQL injection and optimize query execution
+        $stmt = $this->dataSource->getConnection()->prepare($query);
+        if($keyword){
+            $keywordParam = "%{$keyword}%";
+            $stmt->bind_param("issii", $idNode, $language, $keywordParam, $offset, $limit);
+        } else {
+            $stmt->bind_param("isii", $idNode, $language, $offset, $limit);
+        }
+        $stmt->execute();
+
+        $result = $stmt->get_result();
 
         // If 0 results doesn't depend on not found keyword
-        // or pagination, the node id doesn't exists
+        // or pagination, the node id doesn't exists:
+        // it could've benn done with a query in the beginning,
+        // but with this method we save a query (if the conditions are correct)
         if($keyword === null && $limit === 100 && $offset === 0 && $result->num_rows === 0){
             throw new NodeIdException("Invalid node id: $idNode");
         }

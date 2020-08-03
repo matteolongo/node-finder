@@ -12,13 +12,39 @@ $app = new App();
 
 // Home route
 $app->addRoute('/', function () use ($app) {
-    echo '<h1>Welcome!</h1>';
+    echo <<<EOL
+    <h1>Welcome to the tree builder!</h1>
+    <p>Some useful links
+        <ul>
+            <li>
+                <a href="/full-tree/italian">View full tree ITALIAN</a>
+            </li>
+            <li> 
+                <a href="/full-tree/english">View full tree ENGLISH</a> 
+            </li>
+            <li>
+                <a href="/italian/5">Get root node 5 ITALIAN</a>
+            </li>
+            <li>
+                <a href="/english/5">Get root node 5 ENGLISH</a>
+            </li>
+            <li>
+                <a href="/italian/7">Get sub node 7 ITALIAN</a>
+            </li>
+            <li>
+                <a href="/english/7">Get sub node 7 ENGLISH</a>
+            </li>
+        </ul>
+    </p>
+EOL;
 });
 
 // Show full tree in selected language
 $app->addRoute('/full-tree/(italian|english)', function ($language) use ($app) {
     header('Content-Type: application/json');
-    $tree = $app->nodeRepository->getAllTree($language);
+    $nodes = $app->nodeRepository->getAllNodes($language);
+    $treeBuilder = new TreeBuilder($nodes);
+    $tree = $treeBuilder->getTree();
     echo json_encode($tree);
     die();
 });
@@ -31,15 +57,8 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
             'nodes' => [],
         ];
 
-        // more detailed error messages, could replace block: MANDATORY PARAMETERS
-        /*
-        if (!$language) {
-            $errors[] = "Parameter language is mandatory";
-        }
-        if (!$nodeId) {
-            $errors[] = "Parameter node_id is mandatory";
-        }
-        */
+        // the uncommented block is as by requirements,
+        // for more detailed error messages replace MANDATORY PARAMETERS block with MANDATORY PARAMETERS DETAILED ERRORS block
 
         /* MANDATORY PARAMETERS begin */
         if(!$language || !$nodeId){
@@ -47,9 +66,23 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
         }
         /* MANDATORY PARAMETERS end */
 
+        /** MANDATORY PARAMETERS DETAILED ERRORS begin
+         *
+        if (!$language) {
+            $errors[] = "Parameter language is mandatory";
+        }
+        if (!$nodeId) {
+            $errors[] = "Parameter node_id is mandatory";
+        }
+        MANDATORY PARAMETERS DETAILED ERRORS end **/
+
+
+
         // Get optional parameters and check they are correct
-        // more detailed error messages, could replace block: PAGINATION PARAMETERS
-        /*
+        // the uncommented block is as by requirements,
+        // for more detailed error messages replace PAGINATION PARAMETERRS block with PAGINATION PARAMETERRS DETAILED ERRORS block
+        /** PAGINATION PARAMETERRS DETAILED ERRORS begin
+         *
         if (isset($_GET['page_num'])) {
             $pageNum = $_GET['page_num'];
             if (intval($pageNum) === false) {
@@ -80,7 +113,8 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
         // PAGINATION PARAMETERRS begin
         if (isset($_GET['page_num'])) {
             $pageNum = $_GET['page_num'];
-            if (intval($pageNum) === false || $pageNum < 0) {
+            //if (intval($pageNum) === false || $pageNum < 0) {
+            if (!\Validators\PageNumValidator::validate($pageNum)) {
                 $errors[] = "Invalid page number requested";
             }
         } else {
@@ -90,7 +124,8 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
 
         if ($_GET['page_size']) {
             $pageSize = $_GET['page_size'];
-            if (intval($pageSize) === false || 0 > $pageSize ||$pageSize > 1000) {
+            //if (intval($pageSize) === false || 0 > $pageSize ||$pageSize > 1000) {
+            if (!\Validators\PageSizeValidator::validate($pageSize)) {
                 $errors[] = "Invalid page size requested";
             }
         } else {
@@ -114,10 +149,10 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
             $nextPageNumber = $pageNum + 1;
 
             // TODO check if next page is availabe, otherwise don't set the field in response
-            $response['next_page'] = "/$language/$nodeId/?page_num=$nextPageNumber&page_size=$pageSize";
+            $response['next_page'] = "/$language/$nodeId?page_num=$nextPageNumber&page_size=$pageSize";
             if ($pageNum > 0) {
                 $prevPageNumber = $pageNum - 1;
-                $response['prev_page'] = "/$language/$nodeId/?page_num=$prevPageNumber&page_size=$pageSize";
+                $response['prev_page'] = "/$language/$nodeId?page_num=$prevPageNumber&page_size=$pageSize";
             }
         } else {
             $response['errors'] = $errors;
