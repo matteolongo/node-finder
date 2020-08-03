@@ -4,7 +4,8 @@
 
 ## Notes
 - I didn't provide a CONFIG FILE because with this solution I preferred to put ENV variables in the container definition in the docker-compose.yml file (that can be easily overridden by the container orchestrator env configuration)
-- There was no specification about using php FastCGI or php-fpm so, I preferred the fpm version for its advantages over the FastCGI version: php itself will handle the process management and the process children instead of the web server 
+- There was no specification about using php FastCGI or php-fpm so, I preferred the fpm version for its advantages over the FastCGI version: php itself will handle the process management and the process children instead of the web server
+- I enabled RewriteEngine (and created .htaccess file) so that I could use a routing class to handle the application routes and set the application ready for pretty urls.  
 
 ## Project structure
 - app folder: here you can find the whole application that will be mounted in the PHP container
