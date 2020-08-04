@@ -16,7 +16,7 @@ class App
         $mysqlHost = getenv('MYSQL_HOST') ? getenv('MYSQL_HOST') : 'mysql';
         $mysqlUser = getenv('MYSQL_USER') ? getenv('MYSQL_USER') : 'admin';
         $mysqlPassword = getenv('MYSQL_PASSWORD') ? getenv('MYSQL_PASSWORD') : 'password';
-        $mysqlDbName = getenv('MYSQL_DB_NAME') ? getenv('MYSQL_DB_NAME') : 'node-finder';
+        $mysqlDbName = getenv('MYSQL_DATABASE') ? getenv('MYSQL_DATABASE') : 'node-finder';
 
         $this->setupRouter();
 

@@ -7,10 +7,10 @@ services:
     volumes:
       - ./app/:/var/www/html/
     environment:
-      - MYSQL_HOST=mysql
-      - MYSQL_USER=admin
-      - MYSQL_PASSWORD=password
-      - MYSQL_DB_NAME=node-finder
+      - MYSQL_HOST=${MYSQL_HOST:-mysql}
+      - MYSQL_USER=${MYSQL_USER:-admin}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-node-finder}
   apache:
     build: "./docker/apache/"
     depends_on:
@@ -27,28 +27,15 @@ services:
     networks:
       - test-node-finder
     environment:
-      - MYSQL_ROOT_HOST="%"
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=admin
-      - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=node-finder
+      - MYSQL_ROOT_HOST=${MYSQL_ROOT_HOST:-"%"}
+      - MYSQL_USER=${MYSQL_USER:-admin}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-node-finder}
     volumes:
       - ./docker/data/mysql:/var/lib/mysql
       - ./docker/mysql/data/:/docker-entrypoint-initdb.d/
     ports:
       - 3307:3306
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    networks:
-      - test-node-finder
-    links:
-      - mysql
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_ARBITRARY: 1
-    restart: always
-    ports:
-      - 8183:80
 networks:
   test-node-finder:
