@@ -24,8 +24,8 @@ INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) V
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('3', 'italian', 'Managers');
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('4', 'english', 'Customer Account');
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('4', 'italian', 'Assistenza Cliente');
-INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('5', 'english', 'Docebo');
-INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('5', 'italian', 'Docebo');
+INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('5', 'english', 'Fake Company');
+INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('5', 'italian', 'Fake Company');
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('6', 'english', 'Accounting');
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('6', 'italian', 'Amministrazione');
 INSERT INTO `node-finder`.`node_tree_names` (`idNode`, `language`, `nodeName`) VALUES ('7', 'english', 'Sales');
