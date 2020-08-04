@@ -17,9 +17,10 @@ class App
         $mysqlUser = getenv('MYSQL_USER') ? getenv('MYSQL_USER') : 'admin';
         $mysqlPassword = getenv('MYSQL_PASSWORD') ? getenv('MYSQL_PASSWORD') : 'password';
         $mysqlDbName = getenv('MYSQL_DB_NAME') ? getenv('MYSQL_DB_NAME') : 'node-finder';
+
         $this->setupRouter();
 
-        // Init datasource with conn parameters
+        // Init datasource with datasource connection parameters
         $this->datasource = new Datasources\MysqlDatasource($mysqlHost, $mysqlUser, $mysqlPassword, $mysqlDbName);
 
         // Init repository with proper datasource
@@ -43,6 +44,15 @@ class App
         });
     }
 
+    /**
+     * The regex route representation
+     * The function to be executed
+     * The HTTP method, defaults to GET
+     *
+     * @param $expression
+     * @param $function
+     * @param string|null $method
+     */
     public function addRoute($expression, $function, $method = 'GET'){
         $this->router->add($expression, $function, $method);
     }

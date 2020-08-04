@@ -15,35 +15,82 @@ $app->addRoute('/', function () use ($app) {
     <h1>Welcome to the tree builder!</h1>
     <p>Some useful links
         <ul>
-            <li>
-                <a href="/full-tree/italian">View full tree ITALIAN</a>
+            <li>Full Tree
+                <ul>
+                    <li>
+                        <a href="/full-tree/italian">View full tree ITALIAN</a>
+                    </li>
+                    <li> 
+                        <a href="/full-tree/english">View full tree ENGLISH</a> 
+                    </li>
+                    <li style="list-style: none">&nbsp;</li>
+                </ul>
             </li>
-            <li> 
-                <a href="/full-tree/english">View full tree ENGLISH</a> 
+            <li>Root node
+                <ul>
+                    <li>
+                        <a href="/italian/5">Get root node 5 ITALIAN</a>
+                    </li>
+                    <li>
+                        <a href="/english/5">Get root node 5 ENGLISH</a>
+                    </li>
+                    <li style="list-style: none">&nbsp;</li>
+                </ul>
             </li>
-            <li>
-                <a href="/italian/5">Get root node 5 ITALIAN</a>
+            <li>Sub node
+                <ul>
+                    <li>
+                        <a href="/italian/7">Get sub node 7 ITALIAN</a>
+                    </li>
+                    <li>
+                        <a href="/english/7">Get sub node 7 ENGLISH</a>
+                    </li>
+                    <li style="list-style: none">&nbsp;</li>
+                </ul>
             </li>
-            <li>
-                <a href="/english/5">Get root node 5 ENGLISH</a>
+            <li>Example with pagination
+                <ul>
+                    <li>
+                        <a href="/italian/5?page_num=2&page_size=2">Example with pagination ITALIAN</a>
+                    </li>
+                    <li>
+                        <a href="/english/5?page_num=2&page_size=2">Example with pagination ENGLISH</a>
+                    </li>
+                    <li style="list-style: none">&nbsp;</li>
+                </ul>
             </li>
-            <li>
-                <a href="/italian/7">Get sub node 7 ITALIAN</a>
+            <li>page_num errors
+                <ul>
+                    <li>
+                        <a href="/italian/5?page_num=-1&page_size=2">Error page_num=-1 ITALIAN</a>
+                    </li>
+                    <li>
+                        <a href="/english/5?page_num=a&page_size=2">Error page_num=a ENGLISH</a>
+                    </li>
+                    <li style="list-style: none">&nbsp;</li>
+                </ul>
             </li>
-            <li>
-                <a href="/english/7">Get sub node 7 ENGLISH</a>
+            <li>page_size errors
+                <ul>
+                    <li>
+                        <a href="/italian/5?page_num=0&page_size=0">Error page_size=0 ITALIAN</a>
+                    </li>
+                    <li>
+                        <a href="/english/5?page_num=0&page_size=1001">Error page_size=1001 ENGLISH</a>
+                    </li>
+                    <li style="list-style: none">&nbsp;</li>
+                </ul>
             </li>
-            <li>
-                <a href="/italian/5?page_num=2&page_size=2">Example with pagination ITALIAN</a>
-            </li>
-            <li>
-                <a href="/english/5?page_num=2&page_size=2">Example with pagination ENGLISH</a>
-            </li>
-            <li>
-                <a href="/italian/5?page_num=-1&page_size=2">Error page_num=-1 ITALIAN</a>
-            </li>
-            <li>
-                <a href="/english/5?page_num=a&page_size=2">Error page_num=a ENGLISH</a>
+            <li>invalid node id
+                <ul>
+                    <li>
+                        <a href="/italian/0">Node id = 0 ITALIAN</a>
+                    </li>
+                    <li>
+                        <a href="/english/789">Node id = 789 ENGLISH</a>
+                    </li>
+                    <li style="list-style: none">&nbsp;</li>
+                </ul>
             </li>
         </ul>
     </p>
@@ -72,20 +119,20 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
         // for more detailed error messages replace MANDATORY PARAMETERS block with MANDATORY PARAMETERS DETAILED ERRORS block
 
         /* MANDATORY PARAMETERS begin */
-        if(!$language || !$nodeId){
+        if ($language === null || $nodeId === "") {
             $errors[] = "Missing mandatory params";
         }
         /* MANDATORY PARAMETERS end */
 
         /** MANDATORY PARAMETERS DETAILED ERRORS begin
          *
-        if (!$language) {
-            $errors[] = "Parameter language is mandatory";
-        }
-        if (!$nodeId) {
-            $errors[] = "Parameter node_id is mandatory";
-        }
-        MANDATORY PARAMETERS DETAILED ERRORS end **/
+         * if (!$language) {
+         * $errors[] = "Parameter language is mandatory";
+         * }
+         * if (!$nodeId) {
+         * $errors[] = "Parameter node_id is mandatory";
+         * }
+         * MANDATORY PARAMETERS DETAILED ERRORS end **/
 
         // PAGINATION PARAMETERRS begin
         if (isset($_GET['page_num'])) {
@@ -124,7 +171,8 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
             $response['nodes'] = $treeBuilder->getTree();
             $nextPageNumber = $pageNum + 1;
 
-            if(count($nodes) >= $pageSize){
+            // Not the best check ever, but it should work
+            if (count($nodes) >= $pageSize) {
                 $response['next_page'] = "/$language/$nodeId?page_num=$nextPageNumber&page_size=$pageSize";
             }
             if ($pageNum > 0) {

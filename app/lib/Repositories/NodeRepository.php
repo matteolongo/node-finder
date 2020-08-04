@@ -21,12 +21,12 @@ class NodeRepository
     public function getAllNodes($language)
     {
         $query = "SELECT 
-                node_names.nodeName, 
+                node_names.nodeName as name, 
                 children.level, 
                 ROUND((children.iRight - children.iLeft -1) / 2) as children_number,
-                children.idNode, 
-                children.iLeft, 
-                children.iRight 
+                children.idNode as node_id 
+                -- children.iLeft, 
+                -- children.iRight 
                 FROM node_tree parent JOIN node_tree children ON children.iLeft BETWEEN parent.iLeft AND parent.iRight 
                 JOIN node_tree_names node_names on node_names.idNode = children.idNode
                 WHERE node_names.language = '$language' group by children.iLeft order by children.iLeft;";
@@ -40,12 +40,12 @@ class NodeRepository
     public function get($idNode, $language, $limit = 100, $offset = 0, $keyword = null)
     {
         $query = "SELECT 
-                node_names.nodeName, 
+                node_names.nodeName as name, 
                 children.level, 
                 ROUND((children.iRight - children.iLeft -1) / 2) as children_count,
-                children.idNode,
-                children.iLeft, 
-                children.iRight 
+                children.idNode as node_id
+                -- children.iLeft, 
+                -- children.iRight 
                 FROM node_tree parent JOIN node_tree children ON children.iLeft BETWEEN parent.iLeft AND parent.iRight 
                 JOIN node_tree_names node_names on node_names.idNode = children.idNode
                 WHERE parent.idNode = ? and node_names.language = ? " .
