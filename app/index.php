@@ -159,7 +159,7 @@ $app->addRoute('/(italian|english)/([0-9]*)', function ($language = null, $nodeI
 
         // No need to clean string to prevent sql injection an other nasty things
         // because using prepared statement in repository
-
+        $keyword = $_GET['search_keyword'];
 
         // If any error stop execution and send them back to the user
         // otherwise fire the query and get results
